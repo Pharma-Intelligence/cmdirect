@@ -1,0 +1,22 @@
+{
+    "name": "pharmaintelligence/cmdirect",
+    "type": "library",
+    "description": "CMDirect.nl SMS - PHP Library.",
+    "keywords": ["hl7"],
+    "homepage": "https://github.com/pharma-intelligence/CMDirect/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Robert van der Linde",
+            "homepage": "http://pharma-intelligence.nl",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "giggsey/libphonenumber-for-php": "~7.0"
+    },
+    "autoload": {
+        "psr-4": {"PharmaIntelligence\\CMDirect\\": "src/"}
+    }
+}

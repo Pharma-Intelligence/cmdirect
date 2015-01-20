@@ -1,16 +1,14 @@
 <?php
-namespace PharmaIntelligence\CMDirect;
+namespace PharmaIntelligence\CMDirect\Service;
 
 use PharmaIntelligence\CMDirect\Adapter\RequestAdapterInterface;
 use libphonenumber\PhoneNumberUtil;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumber;
-class Service
+use PharmaIntelligence\CMDirect\Service\ServiceInterface;
+use PharmaIntelligence\CMDirect\Message;
+class CMCorporateService implements ServiceInterface
 {
-    const MAX_BODY_LENGTH_MULTIPART = 153;
-    
-    const MAX_NUMBER_MULTIPARTS_SMS_STANDARD = 255;
-    
     const MAX_MESSAGES = 1000;
     
     /**
@@ -25,11 +23,15 @@ class Service
      */
     protected $requestAdapter = null;
     
-    protected $productToken = null;
+    protected $customerId = null;
+    protected $username = null;
+    protected $password = null;
     
-    public function __construct(RequestAdapterInterface $requestAdapter, $productToken) {
+    public function __construct(RequestAdapterInterface $requestAdapter, $customerId, $username, $password) {
         $this->requestAdapter = $requestAdapter;
-        $this->productToken = $productToken;
+        $this->customerId = $customerId;
+        $this->username = $username;
+        $this->password = $password;
     }
     
     public function queue(Message $message) {
@@ -65,8 +67,8 @@ class Service
         $dcs = $envelope->createElement('DCS', $message->getEncoding());
         $msg->appendChild($dcs);
         
-        $reference  = $envelope->createElement('REFERENCE', $message->getReference());
-        $msg->appendChild($reference);
+        $type  = $envelope->createElement('TYPE', 'TEXT');
+        $msg->appendChild($type);
         
         $body = $envelope->createElement('BODY', $message->getBody());
         $msg->appendChild($body);
@@ -99,10 +101,14 @@ class Service
         $messages = $envelope->createElement('MESSAGES');
         $envelope->appendChild($messages);
         
-        $authentication = $envelope->createElement('AUTHENTICATION');
-        $productToken = $envelope->createElement('PRODUCTTOKEN', $this->productToken);
-        $messages->appendChild($authentication);
-        $authentication->appendChild($productToken);
+        $customerId = $envelope->createElement('CUSTOMER');
+        $customerId->setAttribute('ID', $this->customerId);
+        $messages->appendChild($customerId);
+        
+        $user = $envelope->createElement('USER');
+        $user->setAttribute('LOGIN', $this->username);
+        $user->setAttribute('PASSWORD', $this->password);
+        $messages->appendChild($user);
         
         return $envelope;
     }
